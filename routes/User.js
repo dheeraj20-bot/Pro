@@ -3,9 +3,10 @@ const express = require("express")
 const router = express.Router()
 
 const {
-  // login,
+  login,
   signup,
-  sendotp,
+  sendsignupotp,
+  sendloginotp
   // changePassword,
 } = require("../controllers/Auth/StudentAuth")
 // const {
@@ -23,13 +24,15 @@ const {
 // ********************************************************************************************************
 
 // Route for user login
-// router.post("/login", login)
-
+router.post("/login", login)
 // // Route for user signup
 router.post("/signup", signup)
 
 // // Route for sending OTP to the user's email
-router.post("/sendotp", sendotp)
+router.post("/sendloginotp", sendloginotp)
+
+router.post("/sendsignupotp", sendsignupotp)
+
 
 // // Route for Changing the password
 // router.post("/changepassword", auth, changePassword)

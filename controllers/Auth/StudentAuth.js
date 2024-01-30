@@ -80,7 +80,41 @@ exports.signup = async(req,res)=>{
     }
 }
 
-exports.sendotp = async (req, res) => {
+exports.sendloginotp = async (req, res) => {
+	try {
+		const { phoneNumber } = req.body;
+        
+        if(!phoneNumber){
+            return res.status(403).send({
+                success: false,
+                message: "All Fields are required",
+            });
+        }
+
+		var otp = otpGenerator.generate(6, {
+			upperCaseAlphabets: false,
+			lowerCaseAlphabets: false,
+			specialChars: false,
+		});
+		const result = await OTP.findOne({ otp: otp });
+	
+		
+		const otpPayload = { phoneNumber, otp };
+		const otpBody = await OTP.create(otpPayload);
+
+		console.log("OTP Body", otpBody);
+		res.status(200).json({
+			success: true,
+			message: `OTP Sent Successfully`,
+			otp,
+		});
+	} catch (error) {
+		console.log(error.message);
+		return res.status(500).json({ success: false, error: error.message });
+	}
+};
+
+exports.sendsignupotp = async (req, res) => {
 	try {
 		const { phoneNumber } = req.body;
         
@@ -127,16 +161,64 @@ exports.sendotp = async (req, res) => {
 
 exports.login = async (req,res) =>{
     try{
-        const {phoneNumber} = req.body
+        const {phoneNumber,otp} = req.body
         
-        if(!phoneNumber){
+        if(!phoneNumber || !otp){
             return res.status(403).send({
                 success: false,
                 message: "All Fields are required",
             });
         }
+     
+        const user = await User.findOne({ phoneNumber }).populate("additionalDetails");
+
+        if (!user) {
+			// Return 401 Unauthorized status code with error message
+			return res.status(401).json({
+				success: false,
+				message: `User is not Registered with Us Please SignUp to Continue`,
+			});
+		}
+
+        const response = await OTP.find({ phoneNumber }).sort({ createdAt: -1 }).limit(1);
+
+        if (response.length === 0) {
+            // OTP not found for the email
+            return res.status(400).json({
+                success: false,
+                message: "The OTP is not valid",
+            });
+        } else if (otp !== response[0].otp) {
+            // Invalid OTP
+            return res.status(400).json({
+                success: false,
+                message: "The OTP is not valid",
+            });
+        }
+        
+        // If OTP is valid, proceed with user login
+        const token = jwt.sign(
+            { phoneNumber: user.phoneNumber, id: user._id, accountType: user.role },
+            process.env.JWT_SECRET,
+            {
+                expiresIn: "24h",
+            }
+        );
+        user.token = token;
+        // Set cookie for token and return success response
+        const options = {
+            expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+            httpOnly: true,
+        };
+        res.cookie("token", token, options).status(200).json({
+            success: true,
+            token,
+            user,
+            message: `User Login Success`,
+        });
     }
     catch(error){
+
 
     }
 }
