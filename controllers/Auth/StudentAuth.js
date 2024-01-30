@@ -83,7 +83,13 @@ exports.signup = async(req,res)=>{
 exports.sendotp = async (req, res) => {
 	try {
 		const { phoneNumber } = req.body;
-
+        
+        if(!phoneNumber){
+            return res.status(403).send({
+                success: false,
+                message: "All Fields are required",
+            });
+        }
 		
 		const checkUserPresent = await User.findOne({ phoneNumber });
 
@@ -119,5 +125,19 @@ exports.sendotp = async (req, res) => {
 	}
 };
 
+exports.login = async (req,res) =>{
+    try{
+        const {phoneNumber} = req.body
+        
+        if(!phoneNumber){
+            return res.status(403).send({
+                success: false,
+                message: "All Fields are required",
+            });
+        }
+    }
+    catch(error){
 
+    }
+}
 
