@@ -6,11 +6,13 @@ const expertiseSchema = new mongoose.Schema({
     unique: true,
     required: true
   },
-  consultantid:[{
+  consultantId:[{
     type:mongoose.Schema.Types.ObjectId,
     ref:"consultant"
   }]
 });
+
+
 
 
 module.exports = mongoose.model("expertise",expertiseSchema)

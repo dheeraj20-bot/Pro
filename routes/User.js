@@ -3,12 +3,20 @@ const express = require("express")
 const router = express.Router()
 
 const {
-  login,
-  signup,
-  sendsignupotp,
-  sendloginotp
-  // changePassword,
+  Studentlogin,
+  Studentsignup,
+  Studentsendsignupotp,
+  Studentsendloginotp
 } = require("../controllers/Auth/StudentAuth")
+
+const {
+  Consultantsignup,
+  Counsultantsendsignupotp
+} = require("../controllers/Auth/CounsellorAuth")
+
+const {
+  expertise
+} = require("../controllers/Expertise")
 // const {
 //   resetPasswordToken,
 //   resetPassword,
@@ -23,18 +31,25 @@ const {
 //                                      Authentication routes
 // ********************************************************************************************************
 
+
 // Route for user login
-router.post("/login", login)
+router.post("/login", Studentlogin)
 // // Route for user signup
-router.post("/signup", signup)
+router.post("/signup", Studentsignup)
+
+router.post("/consultant/signup", Consultantsignup)
+
+router.post("/expertise", expertise)
+
+
 
 // // Route for sending OTP to the user's email
-router.post("/sendloginotp", sendloginotp)
+router.post("/sendloginotp", Studentsendloginotp)
 
-router.post("/sendsignupotp", sendsignupotp)
+router.post("/sendsignupotp", Studentsendsignupotp)
+router.post("/consultant/sendsignupotp", Counsultantsendsignupotp)
 
 
-// // Route for Changing the password
 // router.post("/changepassword", auth, changePassword)
 
 // // ********************************************************************************************************

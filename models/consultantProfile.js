@@ -5,8 +5,12 @@ const consultantProfileSchema = new mongoose.Schema({
         type:String
     },
     about:{
-        tyoe:String
+        type:String
+    },
+    chatPricing: {
+        type: Number,
+        default:5
     }
 })
 
-modules.exports = mongoose.model("ConsultantProfile",consultantProfileSchema)
+module.exports = mongoose.model("ConsultantProfile",consultantProfileSchema)

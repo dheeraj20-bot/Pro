@@ -6,7 +6,7 @@ require("dotenv").config();
 const StudentProfile = require("../../models/studentProfile")
 const User = require("../../models/studentUser")
 
-exports.signup = async(req,res)=>{
+exports.Studentsignup = async(req,res)=>{
     try{
          const {username,
             email,
@@ -80,7 +80,7 @@ exports.signup = async(req,res)=>{
     }
 }
 
-exports.sendloginotp = async (req, res) => {
+exports.Studentsendloginotp = async (req, res) => {
 	try {
 		const { phoneNumber } = req.body;
         
@@ -114,7 +114,7 @@ exports.sendloginotp = async (req, res) => {
 	}
 };
 
-exports.sendsignupotp = async (req, res) => {
+exports.Studentsendsignupotp = async (req, res) => {
 	try {
 		const { phoneNumber } = req.body;
         
@@ -159,7 +159,7 @@ exports.sendsignupotp = async (req, res) => {
 	}
 };
 
-exports.login = async (req,res) =>{
+exports.Studentlogin = async (req,res) =>{
     try{
         const {phoneNumber,otp} = req.body
         
@@ -171,25 +171,31 @@ exports.login = async (req,res) =>{
         }
      
         const user = await User.findOne({ phoneNumber }).populate("additionalDetails");
+        
+       
 
         if (!user) {
-			// Return 401 Unauthorized status code with error message
 			return res.status(401).json({
 				success: false,
 				message: `User is not Registered with Us Please SignUp to Continue`,
 			});
 		}
 
+        if(!user.active){
+            return res.status(401).json({
+				success: false,
+				message: `Student is not active `,
+			});
+        }
+
         const response = await OTP.find({ phoneNumber }).sort({ createdAt: -1 }).limit(1);
 
         if (response.length === 0) {
-            // OTP not found for the email
             return res.status(400).json({
                 success: false,
                 message: "The OTP is not valid",
             });
         } else if (otp !== response[0].otp) {
-            // Invalid OTP
             return res.status(400).json({
                 success: false,
                 message: "The OTP is not valid",
@@ -205,11 +211,14 @@ exports.login = async (req,res) =>{
             }
         );
         user.token = token;
+
         // Set cookie for token and return success response
+
         const options = {
             expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
             httpOnly: true,
         };
+        
         res.cookie("token", token, options).status(200).json({
             success: true,
             token,
@@ -222,4 +231,6 @@ exports.login = async (req,res) =>{
 
     }
 }
+
+
 
